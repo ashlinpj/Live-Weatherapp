@@ -1,6 +1,14 @@
 import CONFIG from "./configapi.js";
 let place_name = "";
+
+/*-----------API Keys------------ */
+                      
 const apiKey = CONFIG.API_KEY;
+
+const apiKey_Ip =CONFIG.apiKey_Ip;
+
+/*-------------------------------- */
+
 const apiUrl = `https://api.openweathermap.org/data/2.5/weather?units=metric&q=`;
 const button = document.querySelector(".search .search-btn");
 const inputField = document.querySelector(".search .input");
@@ -20,3 +28,29 @@ async function checkWeather() {
   document.querySelector(".humidity").innerText = data.main.humidity + "%";
   document.querySelector(".wind").innerText = data.wind.speed + " km/h";
 }
+
+/*----------------Get City name from IP address------------------------*/  
+async function getIpInfo() {
+  const apiUrl_Ip = `https://api.geoapify.com/v1/ipinfo?apiKey=${apiKey_Ip}`;
+
+  try {
+    const response = await fetch(apiUrl_Ip);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.city.name; // Return the city name
+  } catch (error) {
+    console.log("Error:", error);
+    return null;
+  }
+}
+/*------------------------------------------------------------------- */
+
+async function initialize() {
+  place_name = await getIpInfo();
+  if (place_name) {
+    await checkWeather();
+  }
+}
+initialize();
